@@ -142,7 +142,16 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         Page page = LayuiPageFactory.defaultPage();
         return this.baseMapper.selectUsers(page, dataScope, name, beginTime, endTime, deptId);
     }
-
+    /**
+     * 根据角色id查询用户列表
+     *
+     * @author wangjinqian
+     * @Date 2018/12/24 22:45
+     */
+    public Page<Map<String,Object>> selectUsersByRoleId(String roleId) {
+        Page page = LayuiPageFactory.defaultPage();
+        return this.baseMapper.selectUsersByRoleId(page,roleId);
+    }
     /**
      * 设置用户的角色
      *

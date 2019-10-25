@@ -200,6 +200,20 @@ public class UserMgrController extends BaseController {
             return LayuiPageFactory.createPageInfo(wrapped);
         }
     }
+    /**
+     * @author wangjinqian
+     * @methodName listByRoleId
+     * @description 获取人员列表通过角色id
+     * @date 2019/10/25 14:54
+     */
+    @Permission(Const.ADMIN_NAME)
+    @ResponseBody
+    @RequestMapping("/listByRoleId")
+    public Object listByRoleId(String roleId){
+        Page<Map<String, Object>> users = userService.selectUsersByRoleId(roleId);
+        Page wrapped = new UserWrapper(users).wrap();
+        return LayuiPageFactory.createPageInfo(wrapped);
+    }
 
     /**
      * 添加管理员
