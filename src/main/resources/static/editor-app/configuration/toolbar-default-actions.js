@@ -328,7 +328,9 @@ var SaveModelCtrl = [ '$rootScope', '$scope', '$http', '$route', '$location',
 
     $scope.saveAndClose = function () {
     	$scope.save(function() {
-    		window.location.href = "./";
+    		// window.location.href = "./";
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);
     	});
     };
     $scope.save = function (successCallback) {
