@@ -261,7 +261,9 @@ KISBPM.TOOLBAR = {
         },
         
         closeEditor: function(services) {
-        	window.location.href = "./";
+        	// window.location.href = "./";
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);
         },
         
         /**
