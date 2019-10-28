@@ -69,7 +69,7 @@ public class ModelEditorJsonRestResource implements ModelDataJsonConstants {
         String editorSourceString = new String(editorSourceByte, StandardCharsets.UTF_8);
         //将String转成ObjectNode
         ObjectNode editorJsonNode = (ObjectNode) objectMapper.readTree(editorSourceString);
-        modelNode.put("model", editorJsonNode);
+        modelNode.set("model", editorJsonNode);
         
       } catch (Exception e) {
         LOGGER.error("Error creating model JSON", e);

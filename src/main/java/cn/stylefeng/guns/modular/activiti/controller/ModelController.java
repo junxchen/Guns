@@ -34,7 +34,6 @@ public class ModelController extends BaseController {
     * @Author xuyuxiang
     * @Date 2019/10/25 14:40
     **/
-    @Permission
     @RequestMapping("")
     public String index() {
         return PREFIX + "/model.html";
@@ -46,7 +45,6 @@ public class ModelController extends BaseController {
      * @author stylefeng
      * @Date 2019-03-13
      */
-    @Permission
     @RequestMapping("/add")
     public String add() {
         return PREFIX + "/model_add.html";
@@ -58,7 +56,6 @@ public class ModelController extends BaseController {
      * @author stylefeng
      * @Date 2019-03-13
      */
-    @Permission
     @RequestMapping("/edit")
     public String edit() {
         return PREFIX + "/model_edit.html";
@@ -74,22 +71,8 @@ public class ModelController extends BaseController {
     @RequestMapping("/addItem")
     @ResponseBody
     public ResponseData addItem(ModelDto modelDto) {
-        this.modelService.add(modelDto);
-        return ResponseData.success();
-    }
-
-    /**
-     * 编辑模型接口
-     *
-     * @Author xuyuxiang
-     * @Date 2019/10/25 15:36
-     **/
-    @Permission
-    @RequestMapping("/editItem")
-    @ResponseBody
-    public ResponseData editItem(ModelDto modelDto) {
-        this.modelService.update(modelDto);
-        return ResponseData.success();
+        String rebackUrl = this.modelService.add(modelDto);;
+        return ResponseData.success(rebackUrl);
     }
 
     /**
@@ -101,7 +84,7 @@ public class ModelController extends BaseController {
     @Permission
     @RequestMapping("/delete")
     @ResponseBody
-    public ResponseData delete(@RequestParam Long modelId) {
+    public ResponseData delete(@RequestParam String modelId) {
         this.modelService.delete(modelId);
         return ResponseData.success();
     }
@@ -114,7 +97,21 @@ public class ModelController extends BaseController {
      **/
     @RequestMapping("/detail")
     @ResponseBody
-    public ResponseData detail(@RequestParam Long modelId) {
+    public ResponseData detail(@RequestParam String modelId) {
+
+        return ResponseData.success();
+    }
+
+    /**
+     * 部署
+     *
+     * @Author xuyuxiang
+     * @Date 2019/10/28 15:17
+     **/
+    @RequestMapping("/deploy")
+    @ResponseBody
+    public ResponseData deploy(@RequestParam String modelId) {
+        this.modelService.deploy(modelId);
         return ResponseData.success();
     }
 
