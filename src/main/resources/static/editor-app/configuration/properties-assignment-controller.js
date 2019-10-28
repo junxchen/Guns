@@ -20,7 +20,7 @@
 /*
  * Assignment
  */
-var KisBpmAssignmentCtrl = [ '$scope', '$modal','$http', function($scope, $modal,$http) {
+var KisBpmAssignmentCtrl = [ '$scope', '$modal', function($scope, $modal) {
 
     // Config for the modal window
     var opts = {
@@ -175,7 +175,6 @@ var KisBpmAssignmentPopupCtrl = [ '$scope','$modal', function($scope, $modal) {
 	        }
     	}
     };
-
     //因新打开的界面上选定的数据要传输到当前modal中，所以使用此方式，这是angular.js中不同控制器之间传输数据的方式
     $scope.$on('choseAssigneesStr', function(event,data,nameData){
         var infos = data.split(",");
