@@ -7,8 +7,10 @@ import cn.stylefeng.guns.modular.activiti.mapper.ModelMapper;
 import cn.stylefeng.guns.modular.activiti.model.ActModel;
 import cn.stylefeng.guns.modular.activiti.model.ModelDto;
 import cn.stylefeng.roses.core.util.ToolUtil;
+import cn.stylefeng.roses.kernel.model.exception.RequestEmptyException;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.activiti.bpmn.converter.BpmnXMLConverter;
@@ -16,6 +18,7 @@ import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.editor.constants.ModelDataJsonConstants;
 import org.activiti.editor.language.json.converter.BpmnJsonConverter;
 import org.activiti.engine.RepositoryService;
+import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.Model;
 import org.activiti.engine.repository.ModelQuery;
 import org.apache.commons.lang3.StringUtils;
@@ -154,11 +157,26 @@ public class ModelService extends ServiceImpl<ModelMapper, ActModel> {
     public void deploy(String modelId) {
         try {
             Model modelData = repositoryService.getModel(modelId);
-            ObjectNode modelNode = (ObjectNode) new ObjectMapper().readTree(repositoryService.getModelEditorSource(modelData.getId()));
+            byte[] bytes = repositoryService.getModelEditorSource(modelData.getId());
+
+            if (bytes == null) {
+                throw new RequestEmptyException();
+            }
+            JsonNode modelNode = null;
+            modelNode = new ObjectMapper().readTree(bytes);
             BpmnModel model = new BpmnJsonConverter().convertToBpmnModel(modelNode);
+            if (model.getProcesses().size() == 0) {
+                throw new RequestEmptyException();
+            }
             byte[] bpmnBytes = new BpmnXMLConverter().convertToXML(model);
+            //发布流程
             String processName = modelData.getName() + ".bpmn20.xml";
-            repositoryService.createDeployment().name(modelData.getName()).addString(processName, new String(bpmnBytes)).deploy();
+            Deployment deployment = repositoryService.createDeployment()
+                    .name(modelData.getName())
+                    .addString(processName, new String(bpmnBytes, "UTF-8"))
+                    .deploy();
+            modelData.setDeploymentId(deployment.getId());
+            repositoryService.saveModel(modelData);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -51,17 +51,6 @@ public class ModelController extends BaseController {
     }
 
     /**
-     * 编辑页面
-     *
-     * @author stylefeng
-     * @Date 2019-03-13
-     */
-    @RequestMapping("/edit")
-    public String edit() {
-        return PREFIX + "/model_edit.html";
-    }
-
-    /**
      * 创建模型接口
      *
      * @Author xuyuxiang
@@ -86,19 +75,6 @@ public class ModelController extends BaseController {
     @ResponseBody
     public ResponseData delete(@RequestParam String modelId) {
         this.modelService.delete(modelId);
-        return ResponseData.success();
-    }
-
-    /**
-     * 查看流程图详情接口
-     *
-     * @Author xuyuxiang
-     * @Date 2019/10/25 15:39
-     **/
-    @RequestMapping("/detail")
-    @ResponseBody
-    public ResponseData detail(@RequestParam String modelId) {
-
         return ResponseData.success();
     }
 
