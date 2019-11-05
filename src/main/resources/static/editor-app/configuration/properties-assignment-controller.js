@@ -119,7 +119,8 @@ var KisBpmAssignmentPopupCtrl = [ '$scope','$modal', function($scope, $modal) {
     	$scope.property.mode = 'read';
     	$scope.$hide();
     };
-    
+
+
     var handleAssignmentInput = function($scope) {
     	if ($scope.assignment.candidateUsers)
     	{
@@ -342,6 +343,12 @@ var KisBpmChoseAssignmentCtrl = ['$scope', '$http', function($scope, $http) {
         }
         $scope.close();
     };
+    $scope.choose = function() {
+        $scope.$emit('choseAssigneeStr', "${applyUser}");
+        $scope.$emit('choseAssigneeNameStr', "${applyUser}");
+        $scope.$hide();
+    };
+
     $scope.selectAll = function($event) {
         var checkbox = $event.target;
         var choseAssignees = $scope.accounts;
