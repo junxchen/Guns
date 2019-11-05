@@ -86,11 +86,21 @@ public class LeaveService extends ServiceImpl<LeaveMapper, Leave>{
      * @Author xuyuxiang
      * @Date 2019/10/29 18:26
      **/
+    @Transactional(rollbackFor = Exception.class)
     public Leave edit(LeaveDto leaveDto) {
+        //先修改
         Leave leave = new Leave();
         ToolUtil.copyProperties(leaveDto,leave);
         this.updateById(leave);
+        //调整操作
+        Integer approveOperate = leaveDto.getApproveOperate();
+        if(ToolUtil.isNotEmpty(approveOperate)){
+            //重新或取消申请
+            Leave newLeave = this.getById(leave.getLeaveId());
+            baseWorkFlowService.reStartOrCancelRequire(newLeave,approveOperate);
+        }
         return leave;
+
     }
     /**
      * 开启请假流程

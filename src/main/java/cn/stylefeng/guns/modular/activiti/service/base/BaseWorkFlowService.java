@@ -6,12 +6,13 @@ import cn.stylefeng.guns.core.shiro.ShiroKit;
 import cn.stylefeng.guns.core.shiro.ShiroUser;
 import cn.stylefeng.guns.modular.activiti.entity.BaseWorkFlowEntity;
 import cn.stylefeng.guns.modular.activiti.service.HistoryService;
+import cn.stylefeng.guns.modular.activiti.service.TaskService;
+import cn.stylefeng.guns.modular.demos.entity.Leave;
 import cn.stylefeng.guns.modular.system.service.UserService;
 import cn.stylefeng.roses.core.util.ToolUtil;
 import cn.stylefeng.roses.kernel.model.exception.ServiceException;
 import org.activiti.engine.IdentityService;
 import org.activiti.engine.RuntimeService;
-import org.activiti.engine.TaskService;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ public class BaseWorkFlowService<T extends BaseWorkFlowEntity>{
 
     @Autowired
     private RuntimeService runtimeService;
+
+    @Autowired
+    private org.activiti.engine.TaskService actTaskService;
 
     @Autowired
     private TaskService taskService;
@@ -109,7 +113,7 @@ public class BaseWorkFlowService<T extends BaseWorkFlowEntity>{
                     .processInstanceId(instanceId).singleResult();
             //运行中
             if (ToolUtil.isNotEmpty(instance)) {
-                Task task = taskService.createTaskQuery().processInstanceId(instanceId).singleResult();
+                Task task = actTaskService.createTaskQuery().processInstanceId(instanceId).singleResult();
                 //当前审批环节
                 String taskName = task.getName();
                 //当前审批人
@@ -137,5 +141,15 @@ public class BaseWorkFlowService<T extends BaseWorkFlowEntity>{
         for (BaseWorkFlowEntity baseWorkFlowEntity:baseWorkFlowEntityList) {
             this.fillFlowEntityInfo(baseWorkFlowEntity);
         }
+    }
+
+    /**
+     * 重新申请或取消申请
+     *
+     * @Author xuyuxiang
+     * @Date 2019/11/5 16:40
+     **/
+    public void reStartOrCancelRequire(Leave leave, Integer approveOperate) {
+        taskService.reStartOrCancelRequire(leave,approveOperate);
     }
 }

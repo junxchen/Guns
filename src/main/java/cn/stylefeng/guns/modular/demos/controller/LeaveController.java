@@ -67,6 +67,20 @@ public class LeaveController extends BaseController {
     }
 
     /**
+     * 调整请假申请页面
+     *
+     * @author stylefeng
+     * @Date 2019-03-13
+     */
+    @RequestMapping("/change")
+    public String change(@RequestParam("leaveId") Long leaveId) {
+        if(ToolUtil.isEmpty(leaveId)){
+            throw new RequestEmptyException("请假id为空");
+        }
+        return PREFIX + "/leave_change.html";
+    }
+
+    /**
      * 请假表单预览页
      *
      * @Author xuyuxiang

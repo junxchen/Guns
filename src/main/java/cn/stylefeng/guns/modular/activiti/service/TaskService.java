@@ -7,6 +7,7 @@ import cn.stylefeng.guns.core.common.page.LayuiPageFactory;
 import cn.stylefeng.guns.core.common.page.LayuiPageInfo;
 import cn.stylefeng.guns.core.shiro.ShiroKit;
 import cn.stylefeng.guns.core.shiro.ShiroUser;
+import cn.stylefeng.guns.modular.activiti.entity.BaseWorkFlowEntity;
 import cn.stylefeng.guns.modular.activiti.model.ApproveDto;
 import cn.stylefeng.guns.modular.activiti.model.HistoryModel;
 import cn.stylefeng.guns.modular.activiti.model.TaskDto;
@@ -48,7 +49,7 @@ import java.util.*;
  * @date 2019/10/3017:22
  */
 @Service
-public class TaskService {
+public class TaskService<T extends BaseWorkFlowEntity> {
 
     private final String BASE64_PREFIX = "data:image/png;base64,";
 
@@ -249,20 +250,31 @@ public class TaskService {
                 createProcessDefinitionQuery().
                 processDefinitionId(processDefinitionId).
                 singleResult();
+        String formKey = "";
+        //获取businessKey
+        HistoricProcessInstance historicProcessInstance = actHistoryService.
+                createHistoricProcessInstanceQuery().
+                processInstanceId(processInstanceId).singleResult();
+        String businessKey = historicProcessInstance.getBusinessKey();
+
         //判断是否有启动表单
         boolean hasStartFormKey = processDefinition.hasStartFormKey();
-        String formKey = "";
         //有的话则取表单key
         if(hasStartFormKey){
             //formKey + businessKey作为表单地址
             StartFormData startFormData = formService.getStartFormData(processDefinitionId);
             formKey = startFormData.getFormKey();
-            HistoricProcessInstance historicProcessInstance = actHistoryService.
-                    createHistoricProcessInstanceQuery().
-                    processInstanceId(processInstanceId).singleResult();
-            String businessKey = historicProcessInstance.getBusinessKey();
             formKey = formKey + businessKey;
         }
+
+        //根据processInstanceId获取流程，如果流程未结束，且当前任务节点有自定义表单，则使用当前自定义表单
+        Task task = actTaskService.createTaskQuery().processInstanceId(processInstanceId).singleResult();
+        if(ToolUtil.isNotEmpty(task)){
+            if(ToolUtil.isNotEmpty(task.getFormKey())){
+                formKey = task.getFormKey() + businessKey;
+            }
+        }
+
         //获取流程图
         String taskImage = BASE64_PREFIX + this.getTaskImage(processInstanceId);
         resultMap.put("formKey",formKey);
@@ -518,5 +530,25 @@ public class TaskService {
             taskModelList.add(taskModel);
         }
         return taskModelList;
+    }
+
+    /**
+     * 重新申请或取消申请
+     *
+     * @Author xuyuxiang
+     * @Date 2019/11/5 16:43
+     **/
+    @Transactional(rollbackFor = Exception.class)
+    public void reStartOrCancelRequire(T entity, Integer approveOperate) {
+        String processInstanceId = entity.getInstanceId();
+        //根据processInstanceId获取Task，此时Task一定处于运行中
+        Task task = actTaskService.createTaskQuery().processInstanceId(processInstanceId).singleResult();
+        //获取taskId
+        String taskId = task.getId();
+        //完成审批时将审批记录保存
+        Map<String,Object> paramMap = historyService.getLatestApproveInfo(processInstanceId,approveOperate,"-");
+        //更新实体参数
+        paramMap.put("entity",entity);
+        actTaskService.complete(taskId,paramMap);
     }
 }

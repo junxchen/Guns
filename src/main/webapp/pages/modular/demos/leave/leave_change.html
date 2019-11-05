@@ -1,0 +1,23 @@
+@layout("/common/_container.html",{bg:"bg-white",js:["/assets/modular/demos/leave/leave_change.js"]}){
+<form id="leaveForm" lay-filter="leaveForm" class="layui-form model-form">
+    <input name="leaveId" type="hidden"/>
+    <input name="processKey" type="hidden"/>
+    <div class="layui-form-item">
+        <label class="layui-form-label">请假天数<span style="color: red;">*</span></label>
+        <div class="layui-input-block">
+            <input name="leaveDays" placeholder="请输入请假天数" type="text" class="layui-input" lay-verify="required" required/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">请假原因<span style="color: red;">*</span></label>
+        <div class="layui-input-block">
+            <input name="leaveReason" placeholder="请输入请假原因" type="text" class="layui-input" lay-verify="required" required/>
+        </div>
+    </div>
+    <div class="layui-form-item text-right">
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        <button class="layui-btn" lay-filter="btnSubmitStart" lay-submit>重新申请</button>
+        <button class="layui-btn layui-btn-warm" lay-filter="btnSubmitCancel" lay-submit>取消申请</button>
+    </div>
+</form>
+@}

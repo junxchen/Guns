@@ -34,4 +34,9 @@ public class LeaveDto implements Serializable {
      * 流程key
      */
     private String processKey;
+
+    /**
+     * 调整操作 1重新申请 2取消申请
+     */
+    private Integer approveOperate;
 }

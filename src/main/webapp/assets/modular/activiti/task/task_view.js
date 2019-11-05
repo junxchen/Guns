@@ -48,8 +48,12 @@ layui.use(['table','form', 'ax', 'element'], function () {
                         return "<span class='layui-badge layui-bg-green'>通过</span>";
                     }else if (d.approveOperate === 2){
                         return "<span class='layui-badge layui-bg-red'>未通过</span>";
+                    }else if (d.approveOperate === 3){
+                        return "<span class='layui-badge layui-bg-green'>重新申请</span>";
+                    }else if (d.approveOperate === 4){
+                        return "<span class='layui-badge layui-bg-red'>取消申请</span>";
                     }else{
-                        return "<span class='layui-badge layui-bg-gray'>未知</span>";
+                        return "未知";
                     }
                 }
             },
