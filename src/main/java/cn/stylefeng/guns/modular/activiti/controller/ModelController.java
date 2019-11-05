@@ -84,6 +84,7 @@ public class ModelController extends BaseController {
      * @Author xuyuxiang
      * @Date 2019/10/28 15:17
      **/
+    @Permission
     @RequestMapping("/deploy")
     @ResponseBody
     public ResponseData deploy(@RequestParam String modelId) {

@@ -18,6 +18,7 @@ package cn.stylefeng.guns.modular.activiti.model;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.activiti.engine.repository.ProcessDefinition;
 
 /**
  * @author wangjinqian
@@ -27,7 +28,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class ProcessDefinition {
+public class ProcessModel {
   private String id;
   private String category;
   private String name;
@@ -42,9 +43,9 @@ public class ProcessDefinition {
   private boolean isSuspended;
   private String tenantId;
 
-  public ProcessDefinition() {
+  public ProcessModel() {
   }
-  public ProcessDefinition(org.activiti.engine.repository.ProcessDefinition p) {
+  public ProcessModel(ProcessDefinition p) {
     this.id=p.getId();
     this.category=p.getCategory();
     this.name=p.getName();

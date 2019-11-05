@@ -63,6 +63,20 @@ layui.use(['table', 'admin', 'ax', 'ztree'], function () {
         Feng.confirm("是否删除流程" + data.name + "?", operation);
     };
 
+    /**
+     * 点击查看流程图
+     *
+     * @param data 点击按钮时候的行数据
+     */
+    Process.onViewProcessPic = function (data) {
+        top.layui.admin.open({
+            type: 2,
+            title: '查看流程图',
+            area: ['1600px', '800px'],
+            content: Feng.ctxPath + "/process/viewPic?deploymentId=" + data.deploymentId + "&imageName=" + data.diagramResourceName
+        });
+    };
+
     // 渲染表格
     var tableResult = table.render({
         elem: '#' + Process.tableId,
@@ -85,6 +99,8 @@ layui.use(['table', 'admin', 'ax', 'ztree'], function () {
 
         if (layEvent === 'delete') {
             Process.onDeleteProcess(data);
+        } else if (layEvent === 'viewPic') {
+            Process.onViewProcessPic(data);
         }
     })
 });

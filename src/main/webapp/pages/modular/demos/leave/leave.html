@@ -1,0 +1,53 @@
+@layout("/common/_container.html",{js:["/assets/modular/demos/leave/leave.js"]}){
+
+<div class="layui-body-header">
+    <span class="layui-body-header-title">请假管理</span>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-sm12 layui-col-md12 layui-col-lg12">
+            <div class="layui-card">
+                <div class="layui-card-body">
+                    <div class="layui-form toolbar">
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <input id="leaveDays" class="layui-input" type="text" placeholder="请假天数" autocomplete="off"/>
+                            </div>
+                            <div class="layui-inline">
+                                <input id="leaveReason" class="layui-input" type="text" placeholder="请假原因" autocomplete="off"/>
+                            </div>
+                            <div class="layui-inline">
+                                <button id="btnSearch" class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索</button>
+                                @if(shiro.hasPermission("/leave/addItem")){
+                                <button id="btnAdd" class="layui-btn icon-btn"><i class="layui-icon">&#xe654;</i>添加请假</button>
+                                @}
+                            </div>
+                        </div>
+                    </div>
+                    <table class="layui-table" id="leaveTable" lay-filter="leaveTable"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/html" id="tableBar">
+    {{#  if(d.approveStatus == 0){ }}
+        @if(shiro.hasPermission("/leave/editItem")){
+        <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="edit">修改</a>
+        @}
+        @if(shiro.hasPermission("/leave/startItem")){
+        <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="start">开启</a>
+        @}
+        @if(shiro.hasPermission("/leave/delete")){
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delete">删除</a>
+        @}
+    {{# } else { }}
+        @if(shiro.hasPermission("/leave/viewItem")){
+        <a class="layui-btn layui-btn-xs" lay-event="view">查看</a>
+        @}
+    {{# } }}
+</script>
+
+@}

@@ -20,6 +20,7 @@ layui.use(['form', 'ax'], function () {
             top.layui.admin.open({
                 type: 2,
                 title: '编辑流程',
+                maxmin: true,
                 area: ['1600px', '800px'],
                 content: Feng.ctxPath + data.data
             });

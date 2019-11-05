@@ -3,13 +3,11 @@ package cn.stylefeng.guns.modular.activiti.service;
 import cn.hutool.core.bean.BeanUtil;
 import cn.stylefeng.guns.core.common.page.LayuiPageFactory;
 import cn.stylefeng.guns.core.common.page.LayuiPageInfo;
-import cn.stylefeng.guns.modular.activiti.mapper.ModelMapper;
 import cn.stylefeng.guns.modular.activiti.model.ActModel;
 import cn.stylefeng.guns.modular.activiti.model.ModelDto;
 import cn.stylefeng.roses.core.util.ToolUtil;
 import cn.stylefeng.roses.kernel.model.exception.RequestEmptyException;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -38,11 +36,11 @@ import java.util.List;
  * @since 2018-12-07
  */
 @Service
-public class ModelService extends ServiceImpl<ModelMapper, ActModel> {
+public class ModelService{
 
-    private String EDITOR_NODE_ID = "canvas";
-    private String EDITOR_RESOURCE_ID = "canvas";
-    private String STENCIL_SET_NODE_NAMESPACE = "http://b3mn.org/stencilset/bpmn2.0#";
+    private final String EDITOR_NODE_ID = "canvas";
+    private final String EDITOR_RESOURCE_ID = "canvas";
+    private final String STENCIL_SET_NODE_NAMESPACE = "http://b3mn.org/stencilset/bpmn2.0#";
 
     @Autowired
     private RepositoryService repositoryService;
@@ -63,10 +61,10 @@ public class ModelService extends ServiceImpl<ModelMapper, ActModel> {
 
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode editorNode = objectMapper.createObjectNode();
-        editorNode.put("id", "canvas");
-        editorNode.put("resourceId", "canvas");
+        editorNode.put("id", EDITOR_NODE_ID);
+        editorNode.put("resourceId", EDITOR_RESOURCE_ID);
         ObjectNode stencilSetNode = objectMapper.createObjectNode();
-        stencilSetNode.put("namespace", "http://b3mn.org/stencilset/bpmn2.0#");
+        stencilSetNode.put("namespace", STENCIL_SET_NODE_NAMESPACE);
         editorNode.set("stencilset", stencilSetNode);
         Model modelData = repositoryService.newModel();
 
@@ -87,16 +85,6 @@ public class ModelService extends ServiceImpl<ModelMapper, ActModel> {
             e.printStackTrace();
         }
         return "/modeler.html?modelId=" + modelId;
-    }
-
-    /**
-     * 修改模型
-     *
-     * @Author xuyuxiang
-     * @Date 2019/10/25 15:42
-     **/
-    public void update(ModelDto modelDto) {
-
     }
 
     /**
@@ -125,8 +113,9 @@ public class ModelService extends ServiceImpl<ModelMapper, ActModel> {
             modelQuery.modelKey(modelDto.getKey());
         }
         List<Model> models = modelQuery
-                .listPage((int) pageContext.getSize() * ((int) pageContext.getCurrent() - 1), (int) pageContext.getSize());
-        long count = repositoryService.createModelQuery().count();
+                .listPage((int) pageContext.getSize() * ((int) pageContext.getCurrent() - 1),
+                        (int) pageContext.getSize());
+        long count = modelQuery.count();
         List<ActModel> list = new ArrayList<>();
         for (Model model:models) {
             ActModel actModel = new ActModel();
@@ -154,6 +143,7 @@ public class ModelService extends ServiceImpl<ModelMapper, ActModel> {
      * @Author xuyuxiang
      * @Date 2019/10/28 15:18
      **/
+    @Transactional(rollbackFor = Exception.class)
     public void deploy(String modelId) {
         try {
             Model modelData = repositoryService.getModel(modelId);

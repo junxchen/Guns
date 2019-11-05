@@ -64,8 +64,9 @@ public class ModelSaveRestResource implements ModelDataJsonConstants {
       model.setName(request.getParameter("name"));
       
       repositoryService.saveModel(model);
-
-      repositoryService.addModelEditorSource(model.getId(), request.getParameter("json_xml").getBytes(StandardCharsets.UTF_8));
+      String json_temp = request.getParameter("json_xml").replaceAll("& ","&");
+      String json_xml = StringEscapeUtils.unescapeXml(json_temp);
+      repositoryService.addModelEditorSource(model.getId(), json_xml.getBytes(StandardCharsets.UTF_8));
       String svg_temp = request.getParameter("svg_xml").replaceAll("& ","&");
       String svg_xml = StringEscapeUtils.unescapeXml(svg_temp);
       InputStream svgStream = new ByteArrayInputStream(svg_xml.getBytes(StandardCharsets.UTF_8));
