@@ -47,4 +47,9 @@ public interface UserMapper extends BaseMapper<User> {
      * 通过角色id 获取用户列表
      */
     Page<Map<String,Object>> selectUsersByRoleId(@Param("page")Page page,@Param("roleId") String roleId);
+
+    /**
+     * 通过角色id 获取用户Id列表(无分页)
+     */
+    List<Long> selectUserIdsByRoleId(@Param("roleId") Long roleId);
 }

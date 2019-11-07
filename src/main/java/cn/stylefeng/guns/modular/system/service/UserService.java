@@ -21,9 +21,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -41,6 +39,9 @@ public class UserService extends ServiceImpl<UserMapper, User> {
 
     @Autowired
     private UserAuthService userAuthService;
+
+    @Autowired
+    private RoleService roleService;
 
     /**
      * 添加用戶
@@ -225,4 +226,29 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         BeanUtil.copyProperties(shiroUser, lastUser);
     }
 
+    /**
+     * 根据用户id集合和角色id集合获取用户集合
+     *
+     * @Author xuyuxiang
+     * @Date 2019/11/7 10:00
+     **/
+    public List<Map<String, Object>> getCandidateUser(Set<Long> candidateUserIdSet,
+                                                      Set<Long> candidateGroupIdSet) {
+        //根据角色id集合获取用户id集合，并放入候选人id集合
+        for (Long roleId:candidateGroupIdSet) {
+            List<Long> userIdList = this.baseMapper.selectUserIdsByRoleId(roleId);
+            candidateUserIdSet.addAll(userIdList);
+        }
+        //遍历候选人用户id集合，获取用户集合
+        List<Map<String,Object>> resultList = new ArrayList<>();
+        for (Long userId: candidateUserIdSet) {
+            User user = this.getById(userId);
+            Map<String,Object> tempMap = new HashMap<>();
+            String userName = user.getName();
+            tempMap.put("userId",userId);
+            tempMap.put("userName",userName);
+            resultList.add(tempMap);
+        }
+        return resultList;
+    }
 }

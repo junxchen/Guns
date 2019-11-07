@@ -30,9 +30,24 @@
 </div>
 
 <script type="text/html" id="tableBar">
+
     @if(shiro.hasPermission("/task/viewTaskDetail")){
     <a class="layui-btn layui-btn-xs" lay-event="view">查看</a>
     @}
+    {{#  if(d.processStatus == 0){ }}
+        @if(shiro.hasPermission("/task/suspend")){
+        <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="suspend">挂起</a>
+        @}
+        @if(shiro.hasPermission("/task/changeAssignee")){
+        <a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="changeAssignee">委托</a>
+        @}
+    {{# } }}
+    {{#  if(d.processStatus == 1){ }}
+        @if(shiro.hasPermission("/task/active")){
+        <a class="layui-btn layui-btn-xs layui-btn-warm" lay-event="active">激活</a>
+        @}
+    {{# } }}
+
 </script>
 
 @}

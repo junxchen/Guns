@@ -344,8 +344,8 @@ var KisBpmChoseAssignmentCtrl = ['$scope', '$http', function($scope, $http) {
         $scope.close();
     };
     $scope.choose = function() {
-        $scope.$emit('choseAssigneeStr', "${applyUser}");
-        $scope.$emit('choseAssigneeNameStr', "${applyUser}");
+        $scope.$emit('choseAssigneeStr', "${applyUserId}");
+        $scope.$emit('choseAssigneeNameStr', "${applyUserId}");
         $scope.$hide();
     };
 

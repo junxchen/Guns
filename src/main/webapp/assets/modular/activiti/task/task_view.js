@@ -39,9 +39,9 @@ layui.use(['table','form', 'ax', 'element'], function () {
         return [[
             {field: 'taskName', sort: true, title: '任务名称'},
             {field: 'taskCreateTime', sort: true, title: '任务创建时间'},
-            {field: 'approveUserName', sort: true, title: '审批人'},
-            {field: 'approveTime', sort: true, title: '审批时间'},
-            {field: 'approveOperate', sort: true, title: '审批操作',templet: function (d) {
+            {field: 'approveUserName', sort: true, title: '操作人'},
+            {field: 'approveTime', sort: true, title: '操作时间'},
+            {field: 'approveOperate', sort: true, title: '操作内容',templet: function (d) {
                     if (d.approveOperate === 0) {
                         return "-";
                     } else if (d.approveOperate === 1){

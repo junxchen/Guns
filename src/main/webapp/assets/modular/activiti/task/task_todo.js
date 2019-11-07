@@ -25,7 +25,8 @@ layui.use(['table', 'admin', 'ax', 'ztree'], function () {
             {field: 'processName', sort: true, title: '流程名称'},
             {field: 'applyUserName', sort: true, title: '申请人'},
             {field: 'approveProcess', sort: true, title: '当前审批环节'},
-            {field: 'taskAssigneeUserName', sort: true, title: '委托人'},
+            {field: 'taskAssigneeUserName', sort: true, title: '审批人'},
+            {field: 'taskOwnerName', sort: true, title: '委托人'},
             {field: 'applyDate', sort: true, title: '申请时间'},
             {align: 'center', toolbar: '#tableBar', title: '操作', minWidth: 200}
         ]];

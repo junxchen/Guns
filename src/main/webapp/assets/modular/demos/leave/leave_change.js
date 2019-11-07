@@ -19,6 +19,7 @@ layui.use(['form', 'ax'], function () {
             Feng.success("提交成功！");
             //关掉对话框
             admin.closeThisDialog();
+            parent.admin.closeThisDialog();
             //传给上个页面，刷新table用
             admin.putTempData('formOk', true);
         }, function (data) {
@@ -37,7 +38,7 @@ layui.use(['form', 'ax'], function () {
                 Feng.success("提交成功！");
                 //关掉对话框
                 admin.closeThisDialog();
-
+                parent.admin.closeThisDialog();
                 //传给上个页面，刷新table用
                 admin.putTempData('formOk', true);
             }, function (data) {

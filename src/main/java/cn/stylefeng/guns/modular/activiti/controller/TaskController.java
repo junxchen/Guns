@@ -64,6 +64,30 @@ public class TaskController extends BaseController {
     }
 
     /**
+     * 候选人列表页面
+     *
+     * @Author xuyuxiang
+     * @Date 2019/10/30 17:17
+     **/
+    @RequestMapping("/candidate")
+    public String candidateUser(){
+        return PREFIX+"/task_candidate.html";
+    }
+
+    /** 
+     * 候选人列表接口
+     * 
+     * @Author xuyuxiang
+     * @Date 2019/11/6 15:23
+     **/
+    @Permission
+    @ResponseBody
+    @RequestMapping("/candidateList")
+    public LayuiPageInfo candidateList(@RequestParam String processInstanceId) {
+        return this.taskService.candidateList(processInstanceId);
+    }
+
+    /**
      * 查询我的待办任务列表
      *
      * @Author xuyuxiang
@@ -114,6 +138,49 @@ public class TaskController extends BaseController {
     @RequestMapping("/doneTask")
     public ResponseData doneTask(ApproveDto approveDto) {
         this.taskService.doneTask(approveDto);
+        return ResponseData.success();
+    }
+
+    /**
+     * 挂起任务
+     *
+     * @Author xuyuxiang
+     * @Date 2019/11/4 14:25
+     **/
+    @Permission
+    @ResponseBody
+    @RequestMapping("/suspend")
+    public ResponseData suspend(@RequestParam String processInstanceId) {
+        this.taskService.suspend(processInstanceId);
+        return ResponseData.success();
+    }
+
+    /**
+     * 激活任务
+     *
+     * @Author xuyuxiang
+     * @Date 2019/11/4 14:25
+     **/
+    @Permission
+    @ResponseBody
+    @RequestMapping("/active")
+    public ResponseData active(@RequestParam String processInstanceId) {
+        this.taskService.active(processInstanceId);
+        return ResponseData.success();
+    }
+
+    /**
+     * 委托他人审核
+     *
+     * @Author xuyuxiang
+     * @Date 2019/11/4 14:25
+     **/
+    @Permission
+    @ResponseBody
+    @RequestMapping("/changeAssignee")
+    public ResponseData changeAssignee(@RequestParam String processInstanceId,
+                                       @RequestParam String taskAssignee) {
+        this.taskService.changeAssignee(processInstanceId,taskAssignee);
         return ResponseData.success();
     }
 }

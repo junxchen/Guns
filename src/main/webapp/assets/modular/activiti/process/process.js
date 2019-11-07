@@ -6,7 +6,7 @@ layui.use(['table', 'admin', 'ax', 'ztree'], function () {
     var $ZTree = layui.ztree;
 
     /**
-     * 系统管理--部门管理
+     * 工作流管理--部署流程管理
      */
     var Process = {
         tableId: "processTable",
@@ -20,7 +20,6 @@ layui.use(['table', 'admin', 'ax', 'ztree'], function () {
      */
     Process.initColumn = function () {
         return [[
-            {type: 'numbers'},
             {field: 'id', sort: true, title: '流程id'},
             {field: 'name', sort: true, title: '流程名称'},
             {field: 'key', sort: true, title: 'key'},
@@ -77,6 +76,19 @@ layui.use(['table', 'admin', 'ax', 'ztree'], function () {
         });
     };
 
+    /**
+     * 查看版本历史
+     * @param data
+     */
+    Process.openVersion = function (data) {
+        top.layui.admin.open({
+            type: 2,
+            title: '查看版本',
+            area: ['1600px', '800px'],
+            content: Feng.ctxPath + "/process/version?key=" + data.key
+        });
+    };
+
     // 渲染表格
     var tableResult = table.render({
         elem: '#' + Process.tableId,
@@ -101,6 +113,8 @@ layui.use(['table', 'admin', 'ax', 'ztree'], function () {
             Process.onDeleteProcess(data);
         } else if (layEvent === 'viewPic') {
             Process.onViewProcessPic(data);
+        } else if(layEvent === "version"){
+            Process.openVersion(data);
         }
     })
 });

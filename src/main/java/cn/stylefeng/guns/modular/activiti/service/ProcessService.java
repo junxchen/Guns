@@ -10,7 +10,6 @@ import cn.stylefeng.roses.core.util.ToolUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.history.HistoricTaskInstance;
-import org.activiti.engine.history.HistoricTaskInstanceQuery;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.repository.ProcessDefinitionQuery;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,13 +49,11 @@ public class ProcessService {
      * @date 2019/10/28 10:14
      * @param processModel
      */
-    public Page list(ProcessModel processModel) {
-        //获取分页参数
-        Page page = LayuiPageFactory.defaultPage();
+    public LayuiPageInfo list(ProcessModel processModel) {
+        Page pageContext = getPageContext();
 
         ProcessDefinitionQuery processDefinitionQuery = repositoryService
                 .createProcessDefinitionQuery();
-        List<ProcessDefinition> processDefinitionList = null;
         //设置查询参数
         if (ToolUtil.isNotEmpty(processModel)) {
             String deploymentId = processModel.getDeploymentId();
@@ -72,15 +69,17 @@ public class ProcessService {
                 processDefinitionQuery.processDefinitionKeyLike("%" + processModelKey + "%");
             }
         }
+        processDefinitionQuery.latestVersion();
         //获取流程列表
-        processDefinitionList = processDefinitionQuery.listPage((int)page.getSize() * ((int)page.getCurrent() - 1), (int)page.getSize());
+        List<ProcessDefinition> processDefinitionList = processDefinitionQuery.listPage((int) pageContext.getSize() * ((int) pageContext.getCurrent() - 1),
+                (int) pageContext.getSize());
         List<ProcessModel> list = new ArrayList<>();
         processDefinitionList.forEach(processDefinition -> list.add(new ProcessModel(processDefinition)));
         //设置分页数据
         long count = processDefinitionQuery.count();
-        page.setRecords(list);
-        page.setTotal(count);
-        return page;
+        pageContext.setRecords(list);
+        pageContext.setTotal(count);
+        return LayuiPageFactory.createPageInfo(pageContext);
     }
 
     /**
@@ -120,13 +119,10 @@ public class ProcessService {
      **/
     public LayuiPageInfo monitorProcess(TaskDto taskDto) {
         Page pageContext = getPageContext();
-        //获取所有任务taskQuery
-        HistoricTaskInstanceQuery taskQuery = historyService.getFinishedTaskQuery(taskDto);
-        List<HistoricTaskInstance> taskList = taskQuery.listPage((int) pageContext.getSize() * ((int) pageContext.getCurrent() - 1),
-                (int) pageContext.getSize());
-        long count = taskQuery.count();
+        List<HistoricTaskInstance> taskList = historyService.getMonitorTaskInstanceList(taskDto,pageContext);
+        long count = historyService.countMonitorTaskInstance(taskDto);
         //将任务转换成TaskModel
-        List<TaskModel> taskModelList = taskService.copyFinishedTaskListInfo(taskList);
+        List<TaskModel> taskModelList = taskService.copyMonitorTaskListInfo(taskList);
         pageContext.setRecords(taskModelList);
         pageContext.setTotal(count);
         return LayuiPageFactory.createPageInfo(pageContext);
@@ -140,5 +136,36 @@ public class ProcessService {
      **/
     private Page getPageContext() {
         return LayuiPageFactory.defaultPage();
+    }
+
+    /**
+     * 查询流程版本历史
+     *
+     * @Author xuyuxiang
+     * @Date 2019/11/6 10:59
+     **/
+    public LayuiPageInfo versionHistory(ProcessModel processModel) {
+        Page pageContext = getPageContext();
+        ProcessDefinitionQuery processDefinitionQuery = repositoryService
+                .createProcessDefinitionQuery();
+        //设置查询参数
+        if (ToolUtil.isNotEmpty(processModel)) {
+            String processModelName = processModel.getName();
+            if (ToolUtil.isNotEmpty(processModelName)) {
+                processDefinitionQuery.processDefinitionNameLike("%" + processModelName + "%");
+            }
+            String processModelKey = processModel.getKey();
+            processDefinitionQuery.processDefinitionKey(processModelKey);
+        }
+        processDefinitionQuery.orderByProcessDefinitionVersion().desc();
+        List<ProcessDefinition> processDefinitionList = processDefinitionQuery.listPage((int) pageContext.getSize() * ((int) pageContext.getCurrent() - 1),
+                (int) pageContext.getSize());
+        List<ProcessModel> processModelList = new ArrayList<>();
+        processDefinitionList.forEach(processDefinition -> processModelList.add(new ProcessModel(processDefinition)));
+        //设置分页数据
+        long count = processDefinitionQuery.count();
+        pageContext.setRecords(processModelList);
+        pageContext.setTotal(count);
+        return LayuiPageFactory.createPageInfo(pageContext);
     }
 }

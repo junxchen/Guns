@@ -6,11 +6,9 @@ import cn.stylefeng.guns.modular.activiti.model.TaskDto;
 import cn.stylefeng.guns.modular.system.entity.User;
 import cn.stylefeng.guns.modular.system.service.UserService;
 import cn.stylefeng.roses.core.util.ToolUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.activiti.engine.RepositoryService;
-import org.activiti.engine.history.HistoricActivityInstance;
-import org.activiti.engine.history.HistoricProcessInstance;
-import org.activiti.engine.history.HistoricTaskInstanceQuery;
-import org.activiti.engine.history.HistoricVariableInstance;
+import org.activiti.engine.history.*;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.repository.ProcessDefinitionQuery;
 import org.activiti.engine.task.Task;
@@ -213,7 +211,7 @@ public class HistoryService {
      * @Author xuyuxiang
      * @Date 2019/11/4 17:05
      **/
-    public HistoricTaskInstanceQuery getFinishedTaskQuery(TaskDto taskDto){
+    public HistoricTaskInstanceQuery getDoneTaskQuery(TaskDto taskDto){
         HistoricTaskInstanceQuery historicTaskInstanceQuery = actHistoryService
                 .createHistoricTaskInstanceQuery();
         String processName = taskDto.getProcessName();
@@ -245,5 +243,77 @@ public class HistoryService {
         //查询当前任务已结束的
         historicTaskInstanceQuery.finished();
         return historicTaskInstanceQuery;
+    }
+
+    /**
+     * 获取流程监控的HistoricProcessInstanceQuery
+     *
+     * @Author xuyuxiang
+     * @Date 2019/11/5 18:20
+     **/
+    public HistoricProcessInstanceQuery getMonitorHistoricProcessInstanceQuery(TaskDto taskDto) {
+        HistoricProcessInstanceQuery historicProcessInstanceQuery = actHistoryService.createHistoricProcessInstanceQuery();
+        String processName = taskDto.getProcessName();
+        //根据流程名称查询
+        if(ToolUtil.isNotEmpty(processName)){
+            //根据流程名称查询流程定义实例集合
+            ProcessDefinitionQuery processDefinitionQuery = repositoryService.createProcessDefinitionQuery()
+                    .processDefinitionNameLike("%" + processName + "%");
+            List<ProcessDefinition> processDefinitionList = processDefinitionQuery.list();
+            //获取流程定义实例的key集合
+            Set<String> processKeySet = new HashSet<>();
+            for (ProcessDefinition processDefinition: processDefinitionList) {
+                String key = processDefinition.getKey();
+                processKeySet.add(key);
+            }
+            List<String> processKeyList = new ArrayList<>(processKeySet);
+            historicProcessInstanceQuery.processDefinitionKeyIn(processKeyList);
+        }
+        //根据申请人查询
+        String applyUserId = taskDto.getApplyUserId();
+        if(ToolUtil.isNotEmpty(applyUserId)){
+            //TODO
+        }
+        return historicProcessInstanceQuery;
+    }
+
+    /**
+     * 获取流程监控实体列表
+     *
+     * @Author xuyuxiang
+     * @Date 2019/11/5 19:24
+     **/
+    public List<HistoricTaskInstance> getMonitorTaskInstanceList(TaskDto taskDto, Page pageContext) {
+        HistoricProcessInstanceQuery historicProcessInstanceQuery = this.getMonitorHistoricProcessInstanceQuery(taskDto);
+        //获取历史流程实体列表
+        List<HistoricProcessInstance> historicProcessInstanceList = historicProcessInstanceQuery.listPage((int) pageContext.getSize() * ((int) pageContext.getCurrent() - 1),
+                (int) pageContext.getSize());
+        //定义返回的任务历史流程实体列表
+        List<HistoricTaskInstance> historicTaskInstanceList = new ArrayList<>();
+        //获取最新任务节点信息
+        for (HistoricProcessInstance historicProcessInstance:historicProcessInstanceList) {
+            String processInstanceId = historicProcessInstance.getId();
+            //获取historicTaskInstanceQuery
+            HistoricTaskInstanceQuery historicTaskInstanceQuery = actHistoryService
+                    .createHistoricTaskInstanceQuery()
+                    .processInstanceId(processInstanceId)
+                    .orderByTaskCreateTime()
+                    .desc();
+            HistoricTaskInstance historicTaskInstance = historicTaskInstanceQuery.list().get(0);
+            historicTaskInstanceList.add(historicTaskInstance);
+
+        }
+        return historicTaskInstanceList;
+    }
+
+    /**
+     * 获取流程监控实体数量
+     *
+     * @Author xuyuxiang
+     * @Date 2019/11/5 19:25
+     **/
+    public long countMonitorTaskInstance(TaskDto taskDto) {
+        HistoricProcessInstanceQuery historicProcessInstanceQuery = this.getMonitorHistoricProcessInstanceQuery(taskDto);
+        return historicProcessInstanceQuery.count();
     }
 }

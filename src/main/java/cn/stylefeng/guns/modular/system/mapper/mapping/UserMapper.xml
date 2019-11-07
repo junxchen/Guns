@@ -74,4 +74,10 @@
         <include refid="Base_Column_List_With_Pwd"/>
         from sys_user where role_id like CONCAT('%,',#{roleId},'%') or role_id = #{roleId} or role_id like CONCAT('%',#{roleId},',%')
     </select>
+
+    <select id="selectUserIdsByRoleId" parameterType="long" resultType="long">
+        select
+        user_id
+        from sys_user where role_id like CONCAT('%,',#{roleId},'%') or role_id = #{roleId} or role_id like CONCAT('%',#{roleId},',%')
+    </select>
 </mapper>

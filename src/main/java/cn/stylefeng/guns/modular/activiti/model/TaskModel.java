@@ -50,9 +50,14 @@ public class TaskModel implements Serializable {
     private String applyDate;
 
     /**
-     * 委托人
+     * 待办人
      */
     private String taskAssigneeUserName;
+
+    /**
+     * 委托人
+     */
+    private String taskOwnerName;
 
     /**
      * 审批环节
@@ -60,18 +65,28 @@ public class TaskModel implements Serializable {
     private String approveProcess;
 
     /**
-     * 开始时间(已办任务使用)
+     * 开始时间(已办任务、流程监控使用)
      */
     private String startTime;
 
     /**
-     * 结束时间(已办任务使用)
+     * 结束时间(已办任务、流程监控使用)
      */
     private String endTime;
 
     /**
-     * 耗时时间(已办任务使用)
+     * 耗时时间(已办任务、流程监控使用)
      */
     private String duration;
+
+    /**
+     * 流程状态(已办任务、流程监控使用,0运行中，1挂起 ，2已结束)
+     */
+    private Integer processStatus;
+
+    /**
+     * 结束原因(已办任务、流程监控使用)
+     */
+    private String endReason;
 
 }

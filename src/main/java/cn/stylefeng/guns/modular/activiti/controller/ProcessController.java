@@ -1,7 +1,6 @@
 package cn.stylefeng.guns.modular.activiti.controller;
 
 import cn.stylefeng.guns.core.common.annotion.Permission;
-import cn.stylefeng.guns.core.common.page.LayuiPageFactory;
 import cn.stylefeng.guns.core.common.page.LayuiPageInfo;
 import cn.stylefeng.guns.modular.activiti.model.ProcessModel;
 import cn.stylefeng.guns.modular.activiti.model.TaskDto;
@@ -50,16 +49,34 @@ public class ProcessController extends BaseController {
     }
 
     /**
+     * 跳转到版本列表页面
+     *
+     * @Author xuyuxiang
+     * @Date 2019/11/4 20:15
+     **/
+    @RequestMapping("/version")
+    public String version(){
+        return PREFIX+"/process_version.html";
+    }
+
+    /**
      * @author wangjinqian
      * @methodName list
-     * @description 查询部署的流程列表
+     * @description 查询部署的流程列表(最新版本)
      * @date 2019/10/28 10:47
      */
     @Permission
     @RequestMapping("/list")
     @ResponseBody
     public LayuiPageInfo list(ProcessModel processModel){
-        return LayuiPageFactory.createPageInfo(processService.list(processModel));
+        return processService.list(processModel);
+    }
+
+    @Permission
+    @RequestMapping("/versionHistory")
+    @ResponseBody
+    public LayuiPageInfo versionHistory(ProcessModel processModel){
+        return processService.versionHistory(processModel);
     }
 
     /**
