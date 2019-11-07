@@ -6,7 +6,8 @@ layui.use(['table', 'admin', 'ax', 'ztree'], function () {
     var $ZTree = layui.ztree;
 
     var processInstanceId = Feng.getUrlParam("processInstanceId");
-
+    var changeAssigneeOrEntrust = Feng.getUrlParam("changeAssigneeOrEntrust");
+    var tableId = Feng.getUrlParam("tableId");
     /**
      * 工作流管理--节点候选人列表
      */
@@ -28,21 +29,22 @@ layui.use(['table', 'admin', 'ax', 'ztree'], function () {
     };
 
     /**
-     * 委托
+     * 转办或委托
      */
-    Candidate.changeAssignee = function (data) {
+    Candidate.changeAssigneeOrEntrust = function (data) {
         var operation = function () {
-            var ajax = new $ax(Feng.ctxPath + "/task/changeAssignee", function (data) {
-                Feng.success("委托成功!");
-                table.reload(Candidate.tableId);
+            var ajax = new $ax(Feng.ctxPath + "/task/" + changeAssigneeOrEntrust, function (data) {
+                Feng.success("请求成功!");
+                top.layer.closeAll();
+                admin.putTempData('formOk', true);
             }, function (data) {
-                Feng.error("委托失败!" + data.responseJSON.message + "!");
+                Feng.error("请求失败!" + data.responseJSON.message + "!");
             });
             ajax.set("processInstanceId", processInstanceId);
             ajax.set("taskAssignee", data[0].userId);
             ajax.start();
         };
-        Feng.confirm("是否委托?", operation);
+        Feng.confirm("是否确认?", operation);
     };
 
     // 渲染表格
@@ -65,7 +67,7 @@ layui.use(['table', 'admin', 'ax', 'ztree'], function () {
                 if(data.length == 0){
                     Feng.error("请选择一个候选人!");
                 }else{
-                    Candidate.changeAssignee(data);
+                    Candidate.changeAssigneeOrEntrust(data);
                 }
                 break;
         };

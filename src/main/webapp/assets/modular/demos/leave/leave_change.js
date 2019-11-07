@@ -17,9 +17,8 @@ layui.use(['form', 'ax'], function () {
     form.on('submit(btnSubmitStart)', function (data) {
         var ajax = new $ax(Feng.ctxPath + "/leave/editItem", function (data) {
             Feng.success("提交成功！");
-            //关掉对话框
-            admin.closeThisDialog();
-            parent.admin.closeThisDialog();
+            //关闭所有弹窗
+            top.layer.closeAll();
             //传给上个页面，刷新table用
             admin.putTempData('formOk', true);
         }, function (data) {
@@ -36,19 +35,22 @@ layui.use(['form', 'ax'], function () {
         var operation = function () {
             var ajax = new $ax(Feng.ctxPath + "/leave/editItem", function (data) {
                 Feng.success("提交成功！");
-                //关掉对话框
-                admin.closeThisDialog();
-                parent.admin.closeThisDialog();
+                //关闭所有弹窗
+                top.layer.closeAll();
                 //传给上个页面，刷新table用
                 admin.putTempData('formOk', true);
             }, function (data) {
-                Feng.error("提交失败！" + data.responseJSON.message)
+                Feng.error("提交失败！" + data.responseJSON.message);
+                //关闭所有弹窗
+                top.layer.closeAll();
             });
             data.field.approveOperate = 4;
             ajax.set(data.field);
             ajax.start();
             return false;
+
         };
         Feng.confirm("是否取消申请?取消申请则该流程结束", operation);
+        return false;
     });
 });

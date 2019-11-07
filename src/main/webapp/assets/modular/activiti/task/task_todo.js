@@ -21,6 +21,8 @@ layui.use(['table', 'admin', 'ax', 'ztree'], function () {
         return [[
             {field: 'taskId', hide: true, sort: true, title: 'taskId'},
             {field: 'processInstanceId', hide: true, sort: true, title: 'processInstanceId'},
+            {field: 'taskAssigneeUserId', hide: true, sort: true, title: 'taskAssigneeUserId'},
+            {field: 'taskOwnerUserId', hide: true, sort: true, title: 'taskOwnerUserId'},
             {field: 'taskTitle', sort: true, title: '任务标题'},
             {field: 'processName', sort: true, title: '流程名称'},
             {field: 'applyUserName', sort: true, title: '申请人'},
@@ -43,9 +45,28 @@ layui.use(['table', 'admin', 'ax', 'ztree'], function () {
     };
 
     /**
-     * 弹出查看任务
+     * 点击委托审核
+     *
+     * @param data 点击按钮时候的行数据
      */
-    TodoTask.onOpenView = function (data) {
+    TodoTask.onOpenEntrust = function (data) {
+        admin.putTempData('formOk', false);
+        top.layui.admin.open({
+            type: 2,
+            title: '节点候选人',
+            area: ['500px', '800px'],
+            content: Feng.ctxPath + '/task/candidate?processInstanceId='+ data.processInstanceId
+                + "&changeAssigneeOrEntrust=entrust" + "&tableId=" + TodoTask.tableId,
+            end: function () {
+                admin.getTempData('formOk') && table.reload(TodoTask.tableId);
+            }
+        });
+    };
+
+    /**
+     * 弹出办理任务
+     */
+    TodoTask.onOpenDone = function (data) {
         admin.putTempData('formOk', false);
         top.layui.admin.open({
             type: 2,
@@ -77,11 +98,11 @@ layui.use(['table', 'admin', 'ax', 'ztree'], function () {
         var data = obj.data;
         var layEvent = obj.event;
 
-        if (layEvent === 'do') {
-            TodoTask.onEditModel(data);
-        } else if (layEvent === 'view') {
-            TodoTask.onOpenView(data);
-            //window.location.href = Feng.ctxPath + '/task/viewTaskDetail?processDefinitionId=' + data.processDefinitionId + "&processInstanceId=" + data.processInstanceId;
+        if (layEvent === 'done') {
+            TodoTask.onOpenDone(data);
+        } else if (layEvent === 'entrust') {
+            //委托
+            TodoTask.onOpenEntrust(data);
         }
 
     });

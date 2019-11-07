@@ -58,6 +58,8 @@ public class TaskService<T extends BaseWorkFlowEntity> {
 
     private final String APPLY_DATE = "applyDate";
 
+    private final String APPLY_USER_ID = "applyUserId";
+
     private final String COMPLETED = "completed";
 
     @Autowired
@@ -188,6 +190,8 @@ public class TaskService<T extends BaseWorkFlowEntity> {
             if(ToolUtil.isNotEmpty(taskOwner)){
                 //如果委托人不为空,则展示
                 taskOwnerName = userService.getById(taskOwner).getName();
+            }else{
+                taskOwner = "-";
             }
             //获取流程定义id
             String processDefinitionId = task.getProcessDefinitionId();
@@ -210,7 +214,9 @@ public class TaskService<T extends BaseWorkFlowEntity> {
             taskModel.setApplyUserName(applyUserName);
             taskModel.setApplyDate(applyDate);
             taskModel.setApproveProcess(taskName);
+            taskModel.setTaskAssigneeUserId(taskAssignee);
             taskModel.setTaskAssigneeUserName(taskAssigneeUserName);
+            taskModel.setTaskOwnerUserId(taskOwner);
             taskModel.setTaskOwnerName(taskOwnerName);
             taskModelList.add(taskModel);
         }
@@ -411,7 +417,22 @@ public class TaskService<T extends BaseWorkFlowEntity> {
         String taskId = task.getId();
         //完成审批时将审批记录保存
         Map<String,Object> paramMap = historyService.getLatestApproveInfo(processInstanceId,approveOperate,approveNote);
-        actTaskService.complete(taskId,paramMap);
+
+        String taskOwner = task.getOwner();
+        //待办人
+        String taskAssignee = task.getAssignee();
+        if(ToolUtil.isNotEmpty(taskOwner)){
+            //若任务所属人不为空，且是自己（任务被委托人操作后，任务回归到原待办人，owner不会清空），则正常办理
+            if(taskOwner.equals(taskAssignee)){
+                actTaskService.complete(taskId,paramMap);
+            }else{
+                //若任务所属人不为空，但不是自己，表明该任务为其他人委托办理的，则调用委托方法
+                actTaskService.resolveTask(taskId,paramMap);
+            }
+        }else{
+            //若任务所属人为空,则正常办理（当任务没有被委托时，owner默认为空,当任务被委托了，则原待办人变为owner）
+            actTaskService.complete(taskId,paramMap);
+        }
     }
 
     /**
@@ -463,6 +484,8 @@ public class TaskService<T extends BaseWorkFlowEntity> {
             if(ToolUtil.isNotEmpty(taskOwner)){
                 //如果委托人不为空,则展示
                 taskOwnerName = userService.getById(taskOwner).getName();
+            }else{
+                taskOwner = "-";
             }
 
             //获取流程定义id
@@ -513,7 +536,9 @@ public class TaskService<T extends BaseWorkFlowEntity> {
             taskModel.setApplyUserName(applyUserName);
             taskModel.setApplyDate(applyDate);
             taskModel.setApproveProcess(taskName);
+            taskModel.setTaskAssigneeUserId(taskAssignee);
             taskModel.setTaskAssigneeUserName(taskAssigneeUserName);
+            taskModel.setTaskOwnerUserId(taskOwner);
             taskModel.setTaskOwnerName(taskOwnerName);
             taskModel.setStartTime(startTime);
             taskModel.setEndTime(endTime);
@@ -547,6 +572,7 @@ public class TaskService<T extends BaseWorkFlowEntity> {
             String processInstanceId = historicTaskInstance.getProcessInstanceId();
 
             //获取参数列表，因已办任务可能结束，此处只能通过历史查询
+            String applyUserId = "-";
             String applyUserName = "-";
             String applyDate = "-";
             List<HistoricVariableInstance> historicVariableInstanceList = actHistoryService
@@ -556,7 +582,11 @@ public class TaskService<T extends BaseWorkFlowEntity> {
             for (HistoricVariableInstance historicVariableInstance:historicVariableInstanceList) {
                 //获取参数名称
                 String variableName = historicVariableInstance.getVariableName();
-                //如果参数名称为审批记录名称，则取出
+                //取出参数
+                if(APPLY_USER_ID.equals(variableName)){
+                    //申请人id
+                    applyUserId = String.valueOf(historicVariableInstance.getValue());
+                }
                 if(APPLY_USER_NAME.equals(variableName)){
                     //申请人姓名
                     applyUserName = (String) historicVariableInstance.getValue();
@@ -565,6 +595,7 @@ public class TaskService<T extends BaseWorkFlowEntity> {
                     //申请人时间
                     applyDate = (String) historicVariableInstance.getValue();
                 }
+
             }
 
             //开始时间，此处开始时间为用户申请时间
@@ -582,7 +613,7 @@ public class TaskService<T extends BaseWorkFlowEntity> {
             //待办人姓名，若流程结束则不展示
             String taskAssigneeUserName = "-";
             //委托人id
-            String taskOwner;
+            String taskOwner = "-";
             //委托人姓名
             String taskOwnerName = "-";
             if(ToolUtil.isEmpty(task)){
@@ -605,14 +636,28 @@ public class TaskService<T extends BaseWorkFlowEntity> {
                 if(ToolUtil.isNotEmpty(taskOwner)){
                     //如果委托人不为空,则展示
                     taskOwnerName = userService.getById(taskOwner).getName();
+                }else{
+                    taskOwner = "-";
                 }
 
             }
-            //结束原因，如果该流程已经结束，且该节点结束原因为completed,则表示正常结束
+            //结束原因(前台展示）
             String endReason = "-";
+            //删除原因
             String deleteReason = historicTaskInstance.getDeleteReason();
-            if(processStatus == 2 && COMPLETED.equals(deleteReason)){
-                endReason = "正常结束";
+            boolean isSameUser = applyUserId.equals(historicTaskInstance.getAssignee());
+            //如果该流程已经结束，且该节点结束原因为completed,否则为异常结束
+            if(processStatus == 2){
+                //操作人不是申请人，则表示正常结束，否则为用户取消申请
+                if(COMPLETED.equals(deleteReason)){
+                    if(!isSameUser){
+                        endReason = "正常结束";
+                    }else{
+                        endReason = "取消申请";
+                    }
+                }else{
+                    endReason = "异常结束";
+                }
             }
 
             //耗时时间，若流程结束，此处耗时时间为用户申请时间与流程结束时间差，流程运行则时间不展示
@@ -634,7 +679,9 @@ public class TaskService<T extends BaseWorkFlowEntity> {
             taskModel.setApplyUserName(applyUserName);
             taskModel.setApplyDate(applyDate);
             taskModel.setApproveProcess(taskName);
+            taskModel.setTaskAssigneeUserId(taskAssignee);
             taskModel.setTaskAssigneeUserName(taskAssigneeUserName);
+            taskModel.setTaskOwnerUserId(taskOwner);
             taskModel.setTaskOwnerName(taskOwnerName);
             taskModel.setStartTime(startTime);
             taskModel.setEndTime(endTime);
@@ -735,14 +782,26 @@ public class TaskService<T extends BaseWorkFlowEntity> {
     }
 
     /**
-     * 委托他人审核
+     * 转办（将此任务转为其他人审核）
      *
      * @Author xuyuxiang
      * @Date 2019/11/7 15:11
      **/
     public void changeAssignee(String processInstanceId, String taskAssignee) {
         Task task = actTaskService.createTaskQuery().processInstanceId(processInstanceId).singleResult();
+        //转办
+        actTaskService.setAssignee(task.getId(),taskAssignee);
+    }
+
+    /**
+     * 委托（被委托人处理后任务依然转给委托人，只是多一条审批记录）
+     *
+     * @Author xuyuxiang
+     * @Date 2019/11/7 17:11
+     **/
+    public void entrust(String processInstanceId, String taskAssignee) {
+        Task task = actTaskService.createTaskQuery().processInstanceId(processInstanceId).singleResult();
         //委托
-        actTaskService.delegateTask(task.getId(), taskAssignee);
+        actTaskService.delegateTask(task.getId(),taskAssignee);
     }
 }

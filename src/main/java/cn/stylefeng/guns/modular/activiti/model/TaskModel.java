@@ -50,12 +50,22 @@ public class TaskModel implements Serializable {
     private String applyDate;
 
     /**
-     * 待办人
+     * 待办人id
+     */
+    private String taskAssigneeUserId;
+
+    /**
+     * 待办人姓名
      */
     private String taskAssigneeUserName;
 
     /**
-     * 委托人
+     * 委托人id
+     */
+    private String taskOwnerUserId;
+
+    /**
+     * 委托人姓名
      */
     private String taskOwnerName;
 

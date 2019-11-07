@@ -112,7 +112,7 @@ layui.use(['table', 'admin', 'ax', 'ztree'], function () {
     };
 
     /**
-     * 点击委托他人审核
+     * 点击转办
      *
      * @param data 点击按钮时候的行数据
      */
@@ -122,7 +122,8 @@ layui.use(['table', 'admin', 'ax', 'ztree'], function () {
             type: 2,
             title: '节点候选人',
             area: ['500px', '800px'],
-            content: Feng.ctxPath + '/task/candidate?processInstanceId='+ data.processInstanceId,
+            content: Feng.ctxPath + '/task/candidate?processInstanceId='+ data.processInstanceId
+                + "&changeAssigneeOrEntrust=changeAssignee" + "&tableId=" + Monitor.tableId,
             end: function () {
                 admin.getTempData('formOk') && table.reload(Monitor.tableId);
             }

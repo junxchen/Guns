@@ -170,7 +170,7 @@ public class TaskController extends BaseController {
     }
 
     /**
-     * 委托他人审核
+     * 转办
      *
      * @Author xuyuxiang
      * @Date 2019/11/4 14:25
@@ -181,6 +181,21 @@ public class TaskController extends BaseController {
     public ResponseData changeAssignee(@RequestParam String processInstanceId,
                                        @RequestParam String taskAssignee) {
         this.taskService.changeAssignee(processInstanceId,taskAssignee);
+        return ResponseData.success();
+    }
+
+    /**
+     * 委托
+     *
+     * @Author xuyuxiang
+     * @Date 2019/11/4 14:25
+     **/
+    @Permission
+    @ResponseBody
+    @RequestMapping("/entrust")
+    public ResponseData entrust(@RequestParam String processInstanceId,
+                                @RequestParam String taskAssignee) {
+        this.taskService.entrust(processInstanceId,taskAssignee);
         return ResponseData.success();
     }
 }

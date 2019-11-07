@@ -24,13 +24,13 @@ layui.use(['table', 'admin', 'ax', 'ztree'], function () {
             {field: 'leaveDays', sort: true, title: '请假天数'},
             {field: 'leaveReason', sort: true, title: '请假原因'},
             {field: 'applyUserName', sort: true, title: '申请人'},
-            {field: 'approveStatus', sort: true, title: '审批状态',templet: function (d) {
+            {field: 'approveStatus', sort: true, title: '申请状态',templet: function (d) {
                     if (d.approveStatus === 0) {
                         return "<span class='layui-badge layui-bg-gray'>未开始</span>";
                     } else if (d.approveStatus === 1){
-                        return "<span class='layui-badge layui-bg-black'>审批中</span>";
+                        return "<span class='layui-badge layui-bg-black'>进行中</span>";
                     }else{
-                        return "<span class='layui-badge layui-bg-blue'>审批完成</span>";
+                        return "<span class='layui-badge layui-bg-blue'>已结束</span>";
                     }
                 }
             },

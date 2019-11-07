@@ -31,8 +31,14 @@
 
 <script type="text/html" id="tableBar">
     @if(shiro.hasPermission("/task/viewTaskDetail")){
-    <a class="layui-btn layui-btn-xs" lay-event="view">查看</a>
+    <a class="layui-btn layui-btn-xs" lay-event="done">办理</a>
     @}
+    <!--如果委托人为空，即该任务未委托过，则显示委托按钮-->
+    {{#  if(d.taskOwnerUserId == "-"){ }}
+        @if(shiro.hasPermission("/task/entrust")){
+        <a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="entrust">委托</a>
+        @}
+    {{# } }}
 </script>
 
 @}

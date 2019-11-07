@@ -239,15 +239,20 @@ public class UserService extends ServiceImpl<UserMapper, User> {
             List<Long> userIdList = this.baseMapper.selectUserIdsByRoleId(roleId);
             candidateUserIdSet.addAll(userIdList);
         }
+        //获取当前登录用户的id
+        Long currentUserId = ShiroKit.getUser().getId();
         //遍历候选人用户id集合，获取用户集合
         List<Map<String,Object>> resultList = new ArrayList<>();
         for (Long userId: candidateUserIdSet) {
-            User user = this.getById(userId);
-            Map<String,Object> tempMap = new HashMap<>();
-            String userName = user.getName();
-            tempMap.put("userId",userId);
-            tempMap.put("userName",userName);
-            resultList.add(tempMap);
+            //候选人，移除当前登录用户，防止自己委派自己
+            if(!userId.equals(currentUserId)){
+                User user = this.getById(userId);
+                Map<String,Object> tempMap = new HashMap<>();
+                String userName = user.getName();
+                tempMap.put("userId",userId);
+                tempMap.put("userName",userName);
+                resultList.add(tempMap);
+            }
         }
         return resultList;
     }
