@@ -176,7 +176,7 @@ public class TaskService<T extends BaseWorkFlowEntity> {
             String taskName = task.getName();
             Map<String, Object> variables = actTaskService.getVariables(taskId);
             //申请人id
-            String applyUserId = (String) variables.get(APPLY_USER_ID);
+            String applyUserId = variables.get(APPLY_USER_ID).toString();
             //申请人姓名
             String applyUserName = (String) variables.get(APPLY_USER_NAME);
             //申请人时间
@@ -529,7 +529,7 @@ public class TaskService<T extends BaseWorkFlowEntity> {
                 //取出参数
                 if(APPLY_USER_ID.equals(variableName)){
                     //申请人id
-                    applyUserId = (String) historicVariableInstance.getValue();
+                    applyUserId = historicVariableInstance.getValue().toString();
                 }
                 if(APPLY_USER_NAME.equals(variableName)){
                     //申请人姓名
@@ -603,7 +603,7 @@ public class TaskService<T extends BaseWorkFlowEntity> {
                 //取出参数
                 if(APPLY_USER_ID.equals(variableName)){
                     //申请人id
-                    applyUserId = String.valueOf(historicVariableInstance.getValue());
+                    applyUserId = historicVariableInstance.getValue().toString();
                 }
                 if(APPLY_USER_NAME.equals(variableName)){
                     //申请人姓名
