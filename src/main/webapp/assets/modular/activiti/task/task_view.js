@@ -22,7 +22,7 @@ layui.use(['table','form', 'ax', 'element'], function () {
     var approveHistoryList = result.data.approveHistoryList;
     //后台返回允许展示
     if(logicFlag){
-        if(logicFlag === "false"){
+        if(viewFlag === "false"){
             //但前台不展示
             element.tabDelete("taskView","doneTaskTab");
         }else{

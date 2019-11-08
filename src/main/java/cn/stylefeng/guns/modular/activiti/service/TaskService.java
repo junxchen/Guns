@@ -175,6 +175,8 @@ public class TaskService<T extends BaseWorkFlowEntity> {
             //任务名称
             String taskName = task.getName();
             Map<String, Object> variables = actTaskService.getVariables(taskId);
+            //申请人id
+            String applyUserId = (String) variables.get(APPLY_USER_ID);
             //申请人姓名
             String applyUserName = (String) variables.get(APPLY_USER_NAME);
             //申请人时间
@@ -211,6 +213,7 @@ public class TaskService<T extends BaseWorkFlowEntity> {
             taskModel.setProcessInstanceId(processInstanceId);
             taskModel.setTaskTitle(taskTitle);
             taskModel.setProcessName(processDefinitionName);
+            taskModel.setApplyUserId(applyUserId);
             taskModel.setApplyUserName(applyUserName);
             taskModel.setApplyDate(applyDate);
             taskModel.setApproveProcess(taskName);
@@ -513,6 +516,7 @@ public class TaskService<T extends BaseWorkFlowEntity> {
             String duration = TimeUtil.formatDuring(historicTaskInstance.getDurationInMillis());
 
             //获取参数列表，因已办任务可能结束，此处只能通过历史查询
+            String applyUserId = "-";
             String applyUserName = "-";
             String applyDate = "-";
             List<HistoricVariableInstance> historicVariableInstanceList = actHistoryService
@@ -522,7 +526,11 @@ public class TaskService<T extends BaseWorkFlowEntity> {
             for (HistoricVariableInstance historicVariableInstance:historicVariableInstanceList) {
                 //获取参数名称
                 String variableName = historicVariableInstance.getVariableName();
-                //如果参数名称为审批记录名称，则取出
+                //取出参数
+                if(APPLY_USER_ID.equals(variableName)){
+                    //申请人id
+                    applyUserId = (String) historicVariableInstance.getValue();
+                }
                 if(APPLY_USER_NAME.equals(variableName)){
                     //申请人姓名
                     applyUserName = (String) historicVariableInstance.getValue();
@@ -542,6 +550,7 @@ public class TaskService<T extends BaseWorkFlowEntity> {
             taskModel.setProcessInstanceId(processInstanceId);
             taskModel.setTaskTitle(taskTitle);
             taskModel.setProcessName(processDefinitionName);
+            taskModel.setApplyUserId(applyUserId);
             taskModel.setApplyUserName(applyUserName);
             taskModel.setApplyDate(applyDate);
             taskModel.setApproveProcess(taskName);
@@ -685,6 +694,7 @@ public class TaskService<T extends BaseWorkFlowEntity> {
             taskModel.setProcessInstanceId(processInstanceId);
             taskModel.setTaskTitle(taskTitle);
             taskModel.setProcessName(processDefinitionName);
+            taskModel.setApplyUserId(applyUserId);
             taskModel.setApplyUserName(applyUserName);
             taskModel.setApplyDate(applyDate);
             taskModel.setApproveProcess(taskName);

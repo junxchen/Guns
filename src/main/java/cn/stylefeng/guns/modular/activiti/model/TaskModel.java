@@ -40,6 +40,11 @@ public class TaskModel implements Serializable {
     private String processName;
 
     /**
+     * 申请人id
+     */
+    private String applyUserId;
+
+    /**
      * 申请人姓名
      */
     private String applyUserName;
