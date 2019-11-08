@@ -277,10 +277,19 @@ public class TaskService<T extends BaseWorkFlowEntity> {
                 formKey = task.getFormKey() + businessKey;
             }
         }
-
+        //是否展示审批页签，当流程未结束，且申请人不是当前登录用户时，logicFlag 为true,其他为false
+        boolean logicFlag = false;
+        if(ToolUtil.isNotEmpty(task)){
+            String currentUserId = String.valueOf(ShiroKit.getUser().getId());
+            String applyUserId = actTaskService.getVariables(task.getId()).get(APPLY_USER_ID).toString();
+            if(!currentUserId.equals(applyUserId)){
+                logicFlag = true;
+            }
+        }
         //获取流程图
         String taskImage = BASE64_PREFIX + this.getTaskImage(processInstanceId);
         resultMap.put("formKey",formKey);
+        resultMap.put("logicFlag",logicFlag);
         resultMap.put("processImg",taskImage);
         List<HistoryModel> approveHistoryList = historyService.getApproveHistoryList(processInstanceId);
         resultMap.put("approveHistoryList",approveHistoryList);

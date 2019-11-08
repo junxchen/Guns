@@ -66,7 +66,7 @@ layui.use(['table', 'admin', 'ax', 'ztree'], function () {
             type: 2,
             title: '任务详情',
             area: ['1600px', '800px'],
-            content: Feng.ctxPath + '/task/view?processInstanceId='+data.processInstanceId + "&flag=false",
+            content: Feng.ctxPath + '/task/view?processInstanceId='+data.processInstanceId + "&viewflag=false",
             end: function () {
                 admin.getTempData('formOk') && table.reload(Monitor.tableId);
             }

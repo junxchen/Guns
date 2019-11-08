@@ -77,10 +77,28 @@ layui.use(['table', 'admin', 'ax', 'ztree'], function () {
     };
 
     /**
+     * 点击导出
+     * @param data
+     */
+    Process.onOpenExport = function (data) {
+        layer.confirm('请选择你要导出的文件类型', {
+            btn: ['xml','json'] //按钮
+        }, function(){
+            layer.closeAll();
+            window.location.href = Feng.ctxPath + "/process/export?deploymentId="
+                + data.deploymentId + "&fileType=bpmn";
+        }, function(){
+            layer.closeAll();
+            window.location.href = Feng.ctxPath + "/process/export?deploymentId="
+                + data.deploymentId + "&fileType=json";
+        });
+    };
+
+    /**
      * 查看版本历史
      * @param data
      */
-    Process.openVersion = function (data) {
+    Process.onOpenVersion = function (data) {
         top.layui.admin.open({
             type: 2,
             title: '查看版本',
@@ -113,8 +131,10 @@ layui.use(['table', 'admin', 'ax', 'ztree'], function () {
             Process.onDeleteProcess(data);
         } else if (layEvent === 'viewPic') {
             Process.onViewProcessPic(data);
+        } else if(layEvent === "export"){
+            Process.onOpenExport(data);
         } else if(layEvent === "version"){
-            Process.openVersion(data);
+            Process.onOpenVersion(data);
         }
     })
 });

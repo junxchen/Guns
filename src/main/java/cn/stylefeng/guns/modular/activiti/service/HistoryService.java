@@ -35,6 +35,8 @@ public class HistoryService {
 
     private final String APPROVE_OPERATE = "approveOperate";
 
+    private final String ENTRUST_PREFIX = "【委托办理】";
+
     @Autowired
     private org.activiti.engine.HistoryService actHistoryService;
 
@@ -173,8 +175,25 @@ public class HistoryService {
         String taskName = hisActivityInstanceUserTaskLatest.getActivityName();
         //审批人（发起人）姓名
         historyModel.setApproveUserName(userName);
-        //任务名称
-        historyModel.setTaskName(taskName);
+
+        //任务名称，若该任务是委托办理的，则在taskName前加【委托办理】
+        //获取taskId
+        String taskId = hisActivityInstanceUserTaskLatest.getTaskId();
+        HistoricTaskInstance historicTaskInstance = actHistoryService.createHistoricTaskInstanceQuery()
+                .taskId(taskId)
+                .singleResult();
+        //如果当前任务节点owner不为空，且owner和assigne不一致，则标明当前记录为委托办理的
+        String owner = historicTaskInstance.getOwner();
+        String taskAssignee = historicTaskInstance.getAssignee();
+        if(ToolUtil.isNotEmpty(owner)){
+            if(!taskAssignee.equals(owner)){
+                historyModel.setTaskName(ENTRUST_PREFIX + taskName);
+            }else{
+                historyModel.setTaskName(taskName);
+            }
+        }else{
+            historyModel.setTaskName(taskName);
+        }
 
         //获取任务创建时间
         Date startTime = hisActivityInstanceUserTaskLatest.getStartTime();

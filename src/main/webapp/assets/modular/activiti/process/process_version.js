@@ -57,6 +57,24 @@ layui.use(['table', 'admin', 'ax', 'ztree'], function () {
         });
     };
 
+    /**
+     * 点击导出
+     * @param data
+     */
+    ProcessVersion.onOpenExport = function (data) {
+        layer.confirm('请选择你要导出的文件类型', {
+            btn: ['xml','json'] //按钮
+        }, function(){
+            layer.closeAll();
+            window.location.href = Feng.ctxPath + "/process/export?deploymentId="
+                + data.deploymentId + "&fileType=bpmn";
+        }, function(){
+            layer.closeAll();
+            window.location.href = Feng.ctxPath + "/process/export?deploymentId="
+                + data.deploymentId + "&fileType=json";
+        });
+    };
+
     // 渲染表格
     var tableResult = table.render({
         elem: '#' + ProcessVersion.tableId,
@@ -79,7 +97,7 @@ layui.use(['table', 'admin', 'ax', 'ztree'], function () {
         if (layEvent === 'viewPic') {
             ProcessVersion.onViewProcessPic(data);
         }else if(layEvent === 'export'){
-            ProcessVersion.onExport(data);
+            ProcessVersion.onOpenExport(data);
         }
     })
 });

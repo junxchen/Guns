@@ -8,11 +8,18 @@ import cn.stylefeng.guns.modular.activiti.model.TaskDto;
 import cn.stylefeng.guns.modular.activiti.model.TaskModel;
 import cn.stylefeng.roses.core.util.ToolUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.activiti.bpmn.converter.BpmnXMLConverter;
+import org.activiti.bpmn.model.BpmnModel;
+import org.activiti.editor.language.json.converter.BpmnJsonConverter;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.history.HistoricTaskInstance;
+import org.activiti.engine.repository.Model;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.repository.ProcessDefinitionQuery;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
@@ -32,6 +39,12 @@ import java.util.List;
  */
 @Service
 public class ProcessService {
+
+    private final String LIKE_DIVISION = "%";
+    private final String BPMN_TYPE = "bpmn";
+    private final String BPMN_SUFFIX = ".bpmn20.xml";
+    private final String JSON_TYPE = "json";
+    private final String JSON_SUFFIX = ".json";
 
     @Autowired
     private RepositoryService repositoryService;
@@ -62,11 +75,11 @@ public class ProcessService {
             }
             String processModelName = processModel.getName();
             if (ToolUtil.isNotEmpty(processModelName)) {
-                processDefinitionQuery.processDefinitionNameLike("%" + processModelName + "%");
+                processDefinitionQuery.processDefinitionNameLike(LIKE_DIVISION + processModelName + LIKE_DIVISION);
             }
             String processModelKey = processModel.getKey();
             if (ToolUtil.isNotEmpty(processModelKey)) {
-                processDefinitionQuery.processDefinitionKeyLike("%" + processModelKey + "%");
+                processDefinitionQuery.processDefinitionKeyLike(LIKE_DIVISION + processModelKey + LIKE_DIVISION);
             }
         }
         processDefinitionQuery.latestVersion();
@@ -152,7 +165,7 @@ public class ProcessService {
         if (ToolUtil.isNotEmpty(processModel)) {
             String processModelName = processModel.getName();
             if (ToolUtil.isNotEmpty(processModelName)) {
-                processDefinitionQuery.processDefinitionNameLike("%" + processModelName + "%");
+                processDefinitionQuery.processDefinitionNameLike(LIKE_DIVISION + processModelName + LIKE_DIVISION);
             }
             String processModelKey = processModel.getKey();
             processDefinitionQuery.processDefinitionKey(processModelKey);
@@ -167,5 +180,52 @@ public class ProcessService {
         pageContext.setRecords(processModelList);
         pageContext.setTotal(count);
         return LayuiPageFactory.createPageInfo(pageContext);
+    }
+
+    /**
+     * 导出流程xml或json文件
+     *
+     * @Author xuyuxiang
+     * @Date 2019/11/8 14:36
+     **/
+    public void export(String deploymentId,String fileType, HttpServletResponse response) {
+        OutputStream out = null;
+        try {
+            Model model = repositoryService.createModelQuery().deploymentId(deploymentId).singleResult();
+            String modelId = model.getId();
+            BpmnJsonConverter jsonConverter = new BpmnJsonConverter();
+            byte[] modelEditorSource = repositoryService.getModelEditorSource(modelId);
+            JsonNode editorNode = new ObjectMapper().readTree(modelEditorSource);
+            BpmnModel bpmnModel = jsonConverter.convertToBpmnModel(editorNode);
+            // 处理异常
+            if (bpmnModel.getMainProcess() == null) {
+                response.setStatus(HttpStatus.UNPROCESSABLE_ENTITY.value());
+                response.getOutputStream().println("no main process, can't export for type: " + fileType);
+                response.flushBuffer();
+                return;
+            }
+            String filename = "";
+            byte[] exportBytes = null;
+            String mainProcessId = bpmnModel.getMainProcess().getId();
+            if (fileType.equals(BPMN_TYPE)) {
+                BpmnXMLConverter xmlConverter = new BpmnXMLConverter();
+                exportBytes = xmlConverter.convertToXML(bpmnModel);
+                filename = mainProcessId + BPMN_SUFFIX;
+            } else if (fileType.equals(JSON_TYPE)) {
+                exportBytes = modelEditorSource;
+                filename = mainProcessId + JSON_SUFFIX;
+            }
+            out = response.getOutputStream();
+            response.setContentType("application/octet-stream; charset=utf-8");
+            response.setHeader("Content-Disposition", "attachment; filename=" + filename);
+            response.flushBuffer();
+            if (exportBytes != null) {
+                out.write(exportBytes);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IoUtil.close(out);
+        }
     }
 }

@@ -8,20 +8,30 @@ layui.use(['table','form', 'ax', 'element'], function () {
     var element = layui.element;
 
     var processInstanceId  = Feng.getUrlParam("processInstanceId");
-    var flag = Feng.getUrlParam("flag");
+    //是否展示审批页签，根据页面传过来的flag决定，在已办任务，流程监控，我的发起申请的页面跳转查看时传入false
+    //不展示该审批页签，当从待办任务跳转查看时传入true，展示页签，为避免审批不通过走到调整流程时发起人能看到自己的
+    //待办任务时展示审批页签，此处判断flag如果为true，且后端返回的flag也为true，才展示审批页签
+    var viewFlag = Feng.getUrlParam("viewFlag");
     var ajax = new $ax(Feng.ctxPath + "/task/viewTaskDetail?processInstanceId=" + processInstanceId);
     var result = ajax.start();
     var formKey = Feng.ctxPath + result.data.formKey;
+    var logicFlag =  result.data.logicFlag;
     var processImgBase64 = result.data.processImg;
     $("#formIframe").attr("src",formKey);
     $("#processImg").attr("src",processImgBase64);
     var approveHistoryList = result.data.approveHistoryList;
-    if(flag === "false"){
-        element.tabDelete("taskView","doneTaskTab");
+    //后台返回允许展示
+    if(logicFlag){
+        if(logicFlag === "false"){
+            //但前台不展示
+            element.tabDelete("taskView","doneTaskTab");
+        }else{
+            form.val('approveForm', {
+                "processInstanceId":processInstanceId
+            });
+        }
     }else{
-        form.val('approveForm', {
-            "processInstanceId":processInstanceId
-        });
+        element.tabDelete("taskView","doneTaskTab");
     }
     /**
      * 审批记录

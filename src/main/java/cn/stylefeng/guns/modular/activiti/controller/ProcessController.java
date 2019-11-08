@@ -109,6 +109,21 @@ public class ProcessController extends BaseController {
     }
 
     /**
+     * 导出流程,fileType:bpmn或json
+     *
+     * @Author xuyuxiang
+     * @Date 2019/11/8 14:35
+     **/
+    @Permission
+    @RequestMapping("/export")
+    @ResponseBody
+    public void export(@RequestParam String deploymentId,
+                       @RequestParam String fileType,
+                       HttpServletResponse response){
+        processService.export(deploymentId,fileType,response);
+    }
+
+    /**
      * 流程监控
      *
      * @Author xuyuxiang
